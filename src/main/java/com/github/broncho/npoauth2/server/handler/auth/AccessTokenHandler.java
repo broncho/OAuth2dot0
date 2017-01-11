@@ -1,5 +1,8 @@
-package com.github.broncho.npoauth2.server.handler;
+package com.github.broncho.npoauth2.server.handler.auth;
 
+import com.github.broncho.npoauth2.data.realm.AuthCode;
+import com.github.broncho.npoauth2.data.realm.AccessToken;
+import com.github.broncho.npoauth2.server.handler.ServerBaseHandler;
 import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
@@ -25,13 +28,20 @@ public class AccessTokenHandler extends ServerBaseHandler {
             if (auth2Service.checkClientSecret(oAuthTokenRequest.getClientSecret())) {
                 String authCode = oAuthTokenRequest.getParam(OAuth.OAUTH_CODE);
                 if (oAuthTokenRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) {
-                    if (auth2Service.checkAuthCode(authCode)) {
+                    if (auth2Service.checkAuthCode(new AuthCode(authCode, oAuthTokenRequest.getRedirectURI(), oAuthTokenRequest.getClientId(),
+                            oAuthTokenRequest.getClientSecret()))
+                            ) {
+                        
                         final String accessToken = oAuthIssuer.accessToken();
-                        auth2Service.addAccessToken(accessToken, "admin");
+                        
+                        AccessToken tokenBody = new AccessToken(accessToken, auth2Service.getOpenIdByAuthCode(authCode));
+                        
+                        auth2Service.addAccessToken(tokenBody);
+                        
                         OAuthResponse oAuthResponse = OAuthASResponse
                                 .tokenResponse(HttpServletResponse.SC_OK)
-                                .setAccessToken(accessToken)
-                                .setExpiresIn(String.valueOf(System.currentTimeMillis() + 30_000))
+                                .setAccessToken(tokenBody.accessToken)
+                                .setExpiresIn(String.valueOf(tokenBody.expireIn))
                                 .buildJSONMessage();
                         return oAuthResponse.getBody();
                     } else {

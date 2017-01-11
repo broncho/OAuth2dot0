@@ -1,5 +1,6 @@
-package com.github.broncho.npoauth2.server.handler;
+package com.github.broncho.npoauth2.server.handler.rs;
 
+import com.github.broncho.npoauth2.server.handler.ServerBaseHandler;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ParameterStyle;
@@ -14,29 +15,26 @@ import javax.servlet.http.HttpServletResponse;
  * Author: ZhangXiao
  * Created: 2017/1/10
  */
-public class UserInfoHandler extends ServerBaseHandler {
+public class OpenIdServerHandler extends ServerBaseHandler {
     
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        System.out.println("---UserInfoHandler---");
+        
+        System.out.println("---OpenIdServerHandler---");
         
         //资源请求
         OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(request.raw(), ParameterStyle.QUERY);
-        
-        //AccessToken
         String accessToken = oauthRequest.getAccessToken();
-        
         //验证Access Token
-        if (!auth2Service.checkAccessToken(accessToken)) {
+        if (auth2Service.checkAccessToken(accessToken)) {
+            return auth2Service.getOpenIdByAccessToken(accessToken);
+        } else {
             // 如果不存在/过期了，返回未验证错误，需重新验证
             OAuthResponse oauthResponse = OAuthRSResponse
                     .errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                     .setError(OAuthError.ResourceResponse.INVALID_TOKEN)
                     .buildHeaderMessage();
             return oauthResponse.getBody();
-        } else {
-            //返回用户名
-            return auth2Service.getUsernameByAccessToken(accessToken);
         }
     }
 }
