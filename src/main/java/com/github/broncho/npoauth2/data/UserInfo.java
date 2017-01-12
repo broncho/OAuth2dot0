@@ -14,4 +14,12 @@ public class UserInfo {
         this.id = id;
         this.name = name;
     }
+    
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

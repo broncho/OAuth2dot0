@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>登录认证</title>
+    <title>登录认证[认证服务]</title>
 </head>
 <body>
 <form id="login" action="${authorize_url}" method="post">

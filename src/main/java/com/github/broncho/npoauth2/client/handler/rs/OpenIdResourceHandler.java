@@ -10,7 +10,6 @@ import spark.Request;
 import spark.Response;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Author: ZhangXiao
@@ -18,14 +17,13 @@ import java.util.Map;
  */
 public class OpenIdResourceHandler extends ClientBaseHandler {
     
-    private static final Map<String, String> ACCESS_TOKEN_MAPPING_OPEN_ID = new HashMap<>();
-    
     @Override
     public Object handle(Request request, Response response) throws Exception {
+        logger.info("Request ==> {}.", request.queryString());
         String accessToken = request.queryParams(OAuth.OAUTH_ACCESS_TOKEN);
         //获取openId
         OAuthClientRequest authClientRequest = new OAuthClientRequest
-                .AuthenticationRequestBuilder(String.format("%s?%s=%s", Defined.Server.OPENID, OAuth.OAUTH_ACCESS_TOKEN, accessToken))
+                .AuthenticationRequestBuilder(String.format("%s?%s=%s", Defined.Server.OPENID_ADDRESS, OAuth.OAUTH_ACCESS_TOKEN, accessToken))
                 .buildQueryMessage();
         URLConnectionClient connectionClient = new URLConnectionClient();
         OAuthResourceResponse resourceResponse = connectionClient.execute(
@@ -34,8 +32,7 @@ public class OpenIdResourceHandler extends ClientBaseHandler {
                 "GET",
                 OAuthResourceResponse.class);
         String openId = resourceResponse.getBody();
-        ACCESS_TOKEN_MAPPING_OPEN_ID.put(accessToken, openId);
-        response.redirect(String.format("%s?%s=%s", Defined.Client.INFO, Defined.Param.OPEN_ID, openId));
+        response.redirect(String.format("%s?%s=%s&%s=%s", Defined.Client.INFO, Defined.Param.OPEN_ID, openId, OAuth.OAUTH_ACCESS_TOKEN, accessToken));
         return "";
     }
 }

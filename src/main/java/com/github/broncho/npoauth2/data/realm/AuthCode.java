@@ -1,5 +1,6 @@
 package com.github.broncho.npoauth2.data.realm;
 
+import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.User;
 
 /**
@@ -14,21 +15,21 @@ public class AuthCode {
     
     public final String redirectUrl;
     
-    public final String clientId;
-    
-    public final String clientSecret;
+    public final App app;
     
     public final Long expireIn = System.currentTimeMillis() + 2 * 60_000;
     
-    public AuthCode(String authCode, User user, String redirectUrl, String clientId, String clientSecret) {
+    public AuthCode(String authCode, User user, String redirectUrl, App app) {
         this.authCode = authCode;
         this.user = user;
         this.redirectUrl = redirectUrl;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+        this.app = app;
     }
     
-    public AuthCode(String authCode, String redirectUrl, String clientId, String clientSecret) {
-        this(authCode, null, redirectUrl, clientId, clientSecret);
+    public AuthCode(String authCode, String redirectUrl, App app) {
+        this.authCode = authCode;
+        this.user = null;
+        this.redirectUrl = redirectUrl;
+        this.app = app;
     }
 }

@@ -20,14 +20,14 @@ public class OpenIdServerHandler extends ServerBaseHandler {
     @Override
     public Object handle(Request request, Response response) throws Exception {
         
-        System.out.println("---OpenIdServerHandler---");
+        logger.info("Request ==> {}.", request.queryString());
         
         //资源请求
         OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(request.raw(), ParameterStyle.QUERY);
         String accessToken = oauthRequest.getAccessToken();
         //验证Access Token
-        if (auth2Service.checkAccessToken(accessToken)) {
-            return auth2Service.getOpenIdByAccessToken(accessToken);
+        if (oAuthService.checkAccessToken(accessToken)) {
+            return oAuthService.getOpenIdByAccessToken(accessToken);
         } else {
             // 如果不存在/过期了，返回未验证错误，需重新验证
             OAuthResponse oauthResponse = OAuthRSResponse

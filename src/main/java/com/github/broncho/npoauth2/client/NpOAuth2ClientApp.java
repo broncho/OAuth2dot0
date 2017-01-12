@@ -1,8 +1,8 @@
 package com.github.broncho.npoauth2.client;
 
 import com.github.broncho.npoauth2.client.handler.auth.ClientLoginHandler;
-import com.github.broncho.npoauth2.client.handler.rs.OpenIdResourceHandler;
 import com.github.broncho.npoauth2.client.handler.auth.RedirectHandler;
+import com.github.broncho.npoauth2.client.handler.rs.OpenIdResourceHandler;
 import com.github.broncho.npoauth2.client.handler.rs.UserResourceHandler;
 import com.github.broncho.npoauth2.data.Defined;
 import spark.Spark;
@@ -14,14 +14,16 @@ import spark.Spark;
  */
 public class NpOAuth2ClientApp {
     
-    public static void main(String[] args) {
     
+    public static void main(String[] args) {
+        
         /**
          * 服务信息
          */
         Spark.port(Defined.Client.PORT);
         
         Spark.staticFileLocation(Defined.Client.SITE);
+        
         
         /**
          * 请求授权 ->
@@ -38,7 +40,7 @@ public class NpOAuth2ClientApp {
         /**
          * 获取用户OpenId
          */
-        Spark.post(Defined.Client.OPENID, new OpenIdResourceHandler());
+        Spark.get(Defined.Client.OPENID, new OpenIdResourceHandler());
         
         
         /**
@@ -46,8 +48,8 @@ public class NpOAuth2ClientApp {
          * 资源信息 <-
          */
         Spark.get(Defined.Client.INFO, new UserResourceHandler());
-    
-    
+        
+        
         /**
          *初始化
          */

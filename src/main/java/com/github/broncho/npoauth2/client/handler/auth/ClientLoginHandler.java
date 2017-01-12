@@ -19,7 +19,7 @@ public class ClientLoginHandler extends ClientBaseHandler {
     
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        System.out.println("---ClientLoginHandler---");
+        logger.info("Request  ==> {}.", request.queryString());
         try {
             OAuthClientRequest authClientRequest = OAuthClientRequest
                     .authorizationLocation(Defined.Server.LOGIN_ADDRESS)

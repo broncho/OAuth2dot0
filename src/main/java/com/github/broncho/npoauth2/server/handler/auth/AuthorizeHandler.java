@@ -1,5 +1,6 @@
 package com.github.broncho.npoauth2.server.handler.auth;
 
+import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.User;
 import com.github.broncho.npoauth2.data.realm.AuthCode;
 import com.github.broncho.npoauth2.server.handler.ServerBaseHandler;
@@ -23,13 +24,13 @@ public class AuthorizeHandler extends ServerBaseHandler {
     
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        System.out.println("---AuthorizeHandler---");
+        logger.info("Request ==> {}.", request.queryString());
+        
         OAuthAuthzRequest authAuthzRequest = new OAuthAuthzRequest(request.raw());
-        if (auth2Service.checkClientId(authAuthzRequest.getClientId())) {
-            Optional<User> userOptional = User.validUser(
-                    request.queryParams("username"),
-                    request.queryParams("password")
-            );
+        
+        Optional<App> appOptional = oAuthService.checkClientId(authAuthzRequest.getClientId());
+        if (appOptional.isPresent()) {
+            Optional<User> userOptional = User.validUser(request.queryParams("username"), request.queryParams("password"));
             
             if (userOptional.isPresent()) {
                 String authorizationCode = null;
@@ -39,12 +40,11 @@ public class AuthorizeHandler extends ServerBaseHandler {
                     authorizationCode = oAuthIssuer.authorizationCode();
                     
                     //添加授权码
-                    auth2Service.addAuthCode(new AuthCode(
+                    oAuthService.addAuthCode(new AuthCode(
                             authorizationCode,
                             userOptional.get(),
                             authAuthzRequest.getRedirectURI(),
-                            authAuthzRequest.getClientId(),
-                            authAuthzRequest.getClientSecret()
+                            appOptional.get()
                     ));
                 }
                 final OAuthResponse authResponse = new OAuthASResponse
@@ -54,7 +54,7 @@ public class AuthorizeHandler extends ServerBaseHandler {
                         .buildQueryMessage();
                 response.redirect(authResponse.getLocationUri());
             } else {
-                response.body("Username or Password Error.");
+                return "Bad username And Password";
             }
         } else {
             OAuthResponse oAuthResponse = OAuthASResponse

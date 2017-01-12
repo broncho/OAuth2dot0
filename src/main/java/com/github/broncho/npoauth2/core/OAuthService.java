@@ -1,13 +1,16 @@
 package com.github.broncho.npoauth2.core;
 
+import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.realm.AuthCode;
 import com.github.broncho.npoauth2.data.realm.AccessToken;
+
+import java.util.Optional;
 
 /**
  * Author: ZhangXiao
  * Created: 2017/1/7
  */
-public interface OAuth2Service {
+public interface OAuthService {
     
     void addAuthCode(AuthCode authCode);
     
@@ -21,8 +24,6 @@ public interface OAuth2Service {
     
     String getOpenIdByAccessToken(String accessToken);
     
-    boolean checkClientId(String clientId);
-    
-    boolean checkClientSecret(String clientSecret);
+    Optional<App> checkClientId(String clientId);
     
 }

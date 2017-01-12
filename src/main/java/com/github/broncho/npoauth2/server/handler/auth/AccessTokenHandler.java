@@ -1,5 +1,6 @@
 package com.github.broncho.npoauth2.server.handler.auth;
 
+import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.realm.AuthCode;
 import com.github.broncho.npoauth2.data.realm.AccessToken;
 import com.github.broncho.npoauth2.server.handler.ServerBaseHandler;
@@ -9,10 +10,13 @@ import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 /**
  * Author: ZhangXiao
@@ -20,23 +24,29 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AccessTokenHandler extends ServerBaseHandler {
     
+    private Logger logger = LoggerFactory.getLogger(AccessTokenHandler.class);
+    
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        System.out.println("---AccessTokenHandler---");
-        OAuthTokenRequest oAuthTokenRequest = new OAuthTokenRequest(request.raw());
-        if (auth2Service.checkClientId(oAuthTokenRequest.getClientId())) {
-            if (auth2Service.checkClientSecret(oAuthTokenRequest.getClientSecret())) {
-                String authCode = oAuthTokenRequest.getParam(OAuth.OAUTH_CODE);
-                if (oAuthTokenRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) {
-                    if (auth2Service.checkAuthCode(new AuthCode(authCode, oAuthTokenRequest.getRedirectURI(), oAuthTokenRequest.getClientId(),
-                            oAuthTokenRequest.getClientSecret()))
-                            ) {
+        
+        logger.info("Request ==> {}.", request.queryString());
+        
+        OAuthTokenRequest tokenRequest = new OAuthTokenRequest(request.raw());
+        Optional<App> appOptional = oAuthService.checkClientId(tokenRequest.getClientId());
+        if (appOptional.isPresent()) {
+            final App app = appOptional.get();
+            if (app.clientSecret.equals(tokenRequest.getClientSecret())) {
+                String authCode = tokenRequest.getParam(OAuth.OAUTH_CODE);
+                
+                if (tokenRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) {
+                    
+                    if (oAuthService.checkAuthCode(new AuthCode(authCode, tokenRequest.getRedirectURI(), app))) {
                         
                         final String accessToken = oAuthIssuer.accessToken();
                         
-                        AccessToken tokenBody = new AccessToken(accessToken, auth2Service.getOpenIdByAuthCode(authCode));
+                        AccessToken tokenBody = new AccessToken(accessToken, oAuthService.getOpenIdByAuthCode(authCode));
                         
-                        auth2Service.addAccessToken(tokenBody);
+                        oAuthService.addAccessToken(tokenBody);
                         
                         OAuthResponse oAuthResponse = OAuthASResponse
                                 .tokenResponse(HttpServletResponse.SC_OK)

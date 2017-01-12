@@ -4,6 +4,8 @@ import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.Defined;
 import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
 import org.apache.oltu.oauth2.common.OAuth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -18,9 +20,11 @@ import java.util.Map;
  */
 public class LoginServerHandler implements TemplateViewRoute {
     
+    private Logger logger = LoggerFactory.getLogger(LoginServerHandler.class);
     
     @Override
     public ModelAndView handle(Request request, Response response) throws Exception {
+        logger.info("Request ==> {}.", request.queryString());
         OAuthAuthzRequest authAuthzRequest = new OAuthAuthzRequest(request.raw());
         String clientId = authAuthzRequest.getParam(OAuth.OAUTH_CLIENT_ID);
         App app = App.appByClientId(clientId);

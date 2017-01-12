@@ -1,19 +1,20 @@
 package com.github.broncho.npoauth2.core.impl;
 
-import com.github.broncho.npoauth2.core.OAuth2Service;
+import com.github.broncho.npoauth2.core.OAuthService;
 import com.github.broncho.npoauth2.data.App;
 import com.github.broncho.npoauth2.data.realm.AuthCode;
 import com.github.broncho.npoauth2.data.realm.AccessToken;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * Author: ZhangXiao
  * Created: 2017/1/7
  */
-public class OAuth2ServiceImpl implements OAuth2Service {
+public class OAuthServiceImpl implements OAuthService {
     
     private static final Set<AuthCode> AUTH_BODY_SET = new HashSet<>();
     
@@ -28,7 +29,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public synchronized void addAccessToken(AccessToken accessToken) {
         TOKEN_BODY_SET.add(accessToken);
     }
-
+    
     
     @Override
     public synchronized boolean checkAuthCode(AuthCode authCode) {
@@ -38,8 +39,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             AuthCode item = iterator.next();
             if (item.authCode.equals(authCode.authCode) &&
                     item.redirectUrl.equals(authCode.redirectUrl) &&
-                    item.clientId.equals(authCode.clientId) &&
-                    item.clientSecret.equals(authCode.clientSecret)
+                    item.app.clientId.equals(authCode.app.clientId)
                     ) {
                 if (item.expireIn < System.currentTimeMillis()) {
                     iterator.remove();
@@ -93,22 +93,13 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     
     
     @Override
-    public boolean checkClientId(String clientId) {
+    public Optional<App> checkClientId(String clientId) {
+        App target = null;
         for (App app : App.values()) {
             if (app.clientId.equals(clientId)) {
-                return true;
+                target = app;
             }
         }
-        return false;
-    }
-    
-    @Override
-    public boolean checkClientSecret(String clientSecret) {
-        for (App app : App.values()) {
-            if (app.clientSecret.equals(clientSecret)) {
-                return true;
-            }
-        }
-        return false;
+        return Optional.ofNullable(target);
     }
 }

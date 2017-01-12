@@ -22,7 +22,7 @@ public class RedirectHandler extends ClientBaseHandler {
     
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        System.out.println("---RedirectHandler---");
+        logger.info("Request ==> {}.", request.queryString());
         
         OAuthAuthzResponse authAuthzResponse = OAuthAuthzResponse.oauthCodeAuthzResponse(request.raw());
         OAuthClientRequest authClientRequest = OAuthClientRequest

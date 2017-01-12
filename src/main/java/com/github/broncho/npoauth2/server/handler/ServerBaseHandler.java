@@ -1,7 +1,7 @@
 package com.github.broncho.npoauth2.server.handler;
 
-import com.github.broncho.npoauth2.core.OAuth2Service;
-import com.github.broncho.npoauth2.core.impl.OAuth2ServiceImpl;
+import com.github.broncho.npoauth2.core.OAuthService;
+import com.github.broncho.npoauth2.core.impl.OAuthServiceImpl;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -17,7 +17,7 @@ public abstract class ServerBaseHandler implements Route {
     
     protected Logger logger = LoggerFactory.getLogger(getClass());
     
-    protected OAuth2Service auth2Service = new OAuth2ServiceImpl();
+    protected OAuthService oAuthService = new OAuthServiceImpl();
     
     protected OAuthIssuer oAuthIssuer = new OAuthIssuerImpl(new MD5Generator());
     
