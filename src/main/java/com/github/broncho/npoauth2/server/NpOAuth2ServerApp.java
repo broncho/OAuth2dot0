@@ -8,6 +8,7 @@ import com.github.broncho.npoauth2.server.handler.auth.LoginServerHandler;
 import com.github.broncho.npoauth2.server.handler.rs.UserInfoServerHandler;
 import freemarker.template.Configuration;
 import spark.Spark;
+import spark.debug.DebugScreen;
 import spark.template.freemarker.FreeMarkerEngine;
 
 /**
@@ -26,6 +27,10 @@ public class NpOAuth2ServerApp {
         Spark.threadPool(Runtime.getRuntime().availableProcessors() * 2, Runtime.getRuntime().availableProcessors(), 30000);
         Spark.port(Defined.Server.PORT);
         
+        /**
+         *启用Debug界面
+         */
+        DebugScreen.enableDebugScreen();
         
         /*
          * 静态文件
@@ -38,7 +43,6 @@ public class NpOAuth2ServerApp {
         Configuration configuration = new Configuration();
         configuration.setClassForTemplateLoading(NpOAuth2ServerApp.class, "/template");
         FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine(configuration);
-        
         
         /**
          * 客户端认证

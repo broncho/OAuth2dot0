@@ -6,6 +6,7 @@ import com.github.broncho.npoauth2.client.handler.rs.OpenIdResourceHandler;
 import com.github.broncho.npoauth2.client.handler.rs.UserResourceHandler;
 import com.github.broncho.npoauth2.data.Defined;
 import spark.Spark;
+import spark.debug.DebugScreen;
 
 /**
  * OAuth2协议实现的客户端
@@ -24,6 +25,10 @@ public class NpOAuth2ClientApp {
         
         Spark.staticFileLocation(Defined.Client.SITE);
         
+        /**
+         * 启用Debug界面
+         */
+        DebugScreen.enableDebugScreen();
         
         /**
          * 请求授权 ->
